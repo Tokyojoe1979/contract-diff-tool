@@ -6,30 +6,322 @@
 <title>契約書 変更前後 比較ツール</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: sans-serif; background: #f5f5f3; color: #1a1a1a; padding: 2rem 1rem; }
-h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; }
-.upload-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
-.upload-box { border: 1px solid #ddd; border-radius: 12px; padding: 1.25rem; background: #fff; }
-.upload-box .title { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
-.upload-box label { display: block; font-size: 13px; color: #666; margin-bottom: 8px; }
-textarea { width: 100%; height: 160px; font-size: 13px; font-family: sans-serif; border: 1px solid #ddd; border-radius: 8px; padding: 10px; resize: vertical; background: #fafafa; color: #1a1a1a; line-height: 1.6; }
-textarea:focus { outline: none; border-color: #999; }
-.btn { display: block; width: 100%; padding: 12px; font-size: 15px; font-weight: 500; text-align: center; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #1a1a1a; cursor: pointer; margin-bottom: 1.5rem; }
-.btn:hover { background: #f0f0f0; }
-.btn:active { transform: scale(0.98); }
-.result { border: 1px solid #ddd; border-radius: 12px; background: #fff; padding: 1.25rem; display: none; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f2f5; color: #1a1a1a; padding: 2rem 1rem; min-height: 100vh; }
+.container { max-width: 960px; margin: 0 auto; }
+h1 { font-size: 20px; font-weight: 600; margin-bottom: 0.25rem; color: #111; }
+.subtitle { font-size: 13px; color: #888; margin-bottom: 1.75rem; }
+
+/* Upload area */
+.upload-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.25rem; }
+.upload-box { border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.25rem; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.upload-box .title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.upload-box .title .badge { display: inline-block; font-size: 11px; font-weight: 500; border-radius: 4px; padding: 1px 6px; margin-right: 6px; vertical-align: middle; }
+.badge-before { background: #fff0e6; color: #b85c00; }
+.badge-after  { background: #e8f0fe; color: #1a5276; }
+.upload-box label { display: block; font-size: 12px; color: #888; margin-bottom: 8px; }
+textarea { width: 100%; height: 180px; font-size: 13px; font-family: "Menlo", "Consolas", monospace; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; resize: vertical; background: #fafafa; color: #1a1a1a; line-height: 1.7; transition: border-color 0.15s; }
+textarea:focus { outline: none; border-color: #4a90d9; background: #fff; }
+
+/* Button */
+.btn { display: block; width: 100%; padding: 13px; font-size: 15px; font-weight: 600; text-align: center; border-radius: 10px; border: none; background: #1a1a1a; color: #fff; cursor: pointer; margin-bottom: 2rem; letter-spacing: 0.02em; transition: background 0.15s, transform 0.1s; }
+.btn:hover { background: #333; }
+.btn:active { transform: scale(0.99); }
+
+/* Result panel */
+.result { border: 1px solid #e0e0e0; border-radius: 14px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: none; overflow: hidden; }
 .result.show { display: block; }
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
-.stat { background: #f5f5f3; border-radius: 8px; padding: 12px; text-align: center; }
-.stat-num { font-size: 22px; font-weight: 500; }
-.stat-label { font-size: 12px; color: #666; margin-top: 2px; }
-.add-num { color: #3b6d11; }
-.del-num { color: #a32d2d; }
-.result-header { display: flex; gap: 16px; margin-bottom: 1rem; font-size: 13px; color: #666; }
+
+/* Stats bar */
+.stats-bar { display: flex; gap: 0; border-bottom: 1px solid #ebebeb; background: #f8f9fb; }
+.stat { flex: 1; padding: 16px 20px; text-align: center; }
+.stat + .stat { border-left: 1px solid #ebebeb; }
+.stat-num { font-size: 26px; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 11px; color: #888; margin-top: 4px; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+.add-num { color: #2a7a2a; }
+.del-num { color: #b52b2b; }
+.unch-num { color: #666; }
+
+/* Result header */
+.result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #ebebeb; background: #fafafa; }
+.legends { display: flex; gap: 16px; font-size: 12px; color: #666; }
 .legend { display: flex; align-items: center; gap: 6px; }
-.dot { width: 12px; height: 12px; border-radius: 3px; }
-.dot-add { background: #c0dd97; }
-.dot-del { background: #f09595; }
-.diff-content { font-size: 14px; line-height: 2; white-space: pre-wrap; word-break: break-all; }
-.add { background: #eaf3de; color: #3b6d11; border-radius: 2px; padding: 0 2px; }
-.del { backgroun
+.dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.dot-add { background: #b7e4b7; border: 1px solid #7cbf7c; }
+.dot-del { background: #f5b8b8; border: 1px solid #e07b7b; }
+.view-toggle { display: flex; gap: 0; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+.view-btn { font-size: 12px; padding: 5px 12px; border: none; background: #fff; color: #666; cursor: pointer; transition: background 0.1s, color 0.1s; }
+.view-btn.active { background: #1a1a1a; color: #fff; }
+.view-btn:hover:not(.active) { background: #f0f0f0; }
+
+/* Diff content */
+.diff-wrap { overflow-x: auto; }
+table.diff-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: "Menlo", "Consolas", monospace; line-height: 1.75; }
+table.diff-table td { padding: 1px 12px; vertical-align: top; white-space: pre-wrap; word-break: break-all; }
+.line-num { width: 1%; min-width: 40px; text-align: right; color: #bbb; user-select: none; padding-right: 16px !important; border-right: 1px solid #ebebeb; font-size: 12px; }
+.line-content { width: 99%; }
+tr.line-add { background: #edf7ed; }
+tr.line-add .line-num { background: #d4edcc; color: #5a9a5a; }
+tr.line-add .line-content { color: #1e5c1e; }
+tr.line-add .line-content::before { content: "+"; color: #4caf50; font-weight: 700; margin-right: 6px; }
+tr.line-del { background: #fdf0f0; }
+tr.line-del .line-num { background: #f5d5d5; color: #b55; }
+tr.line-del .line-content { color: #7a1e1e; }
+tr.line-del .line-content::before { content: "−"; color: #e53935; font-weight: 700; margin-right: 6px; }
+tr.line-unch .line-content::before { content: " "; margin-right: 6px; }
+tr.line-unch { background: #fff; }
+tr.line-unch .line-num { color: #ccc; }
+tr.line-unch .line-content { color: #555; }
+.hunk-sep { background: #f0f4ff; }
+.hunk-sep td { color: #8899cc; font-size: 12px; padding: 4px 12px !important; border-top: 1px solid #e0e8ff; border-bottom: 1px solid #e0e8ff; }
+
+/* Split view */
+table.split-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: "Menlo", "Consolas", monospace; line-height: 1.75; }
+table.split-table td { padding: 1px 10px; white-space: pre-wrap; word-break: break-all; vertical-align: top; }
+table.split-table .line-num { width: 1%; min-width: 36px; text-align: right; color: #bbb; user-select: none; padding-right: 10px !important; border-right: 1px solid #ebebeb; font-size: 12px; }
+.split-left, .split-right { width: 50%; }
+.split-left { border-right: 2px solid #e8e8e8; }
+.split-del-cell { background: #fdf0f0; color: #7a1e1e; }
+.split-del-num  { background: #f5d5d5; color: #b55; }
+.split-add-cell { background: #edf7ed; color: #1e5c1e; }
+.split-add-num  { background: #d4edcc; color: #5a9a5a; }
+.split-unch-cell { background: #fff; color: #555; }
+.split-unch-num { color: #ccc; }
+.split-empty { background: #f7f7f7; }
+
+/* Empty state */
+.empty-diff { padding: 40px 20px; text-align: center; color: #999; font-size: 14px; }
+
+@media (max-width: 640px) {
+  .upload-area { grid-template-columns: 1fr; }
+  .stats-bar { flex-wrap: wrap; }
+  .stat { flex: none; width: 50%; }
+  .result-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+  table.split-table { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>契約書 変更前後 比較ツール</h1>
+  <p class="subtitle">変更前と変更後のテキストを入力して比較します</p>
+
+  <div class="upload-area">
+    <div class="upload-box">
+      <div class="title"><span class="badge badge-before">変更前</span>旧バージョン</div>
+      <label>比較元のテキストを貼り付けてください</label>
+      <textarea id="textBefore" placeholder="変更前の契約書テキストをここに貼り付け…"></textarea>
+    </div>
+    <div class="upload-box">
+      <div class="title"><span class="badge badge-after">変更後</span>新バージョン</div>
+      <label>比較先のテキストを貼り付けてください</label>
+      <textarea id="textAfter" placeholder="変更後の契約書テキストをここに貼り付け…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn" onclick="runDiff()">差分を比較する</button>
+
+  <div class="result" id="result">
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-num add-num" id="statAdd">0</div>
+        <div class="stat-label">追加行</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num del-num" id="statDel">0</div>
+        <div class="stat-label">削除行</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num unch-num" id="statUnch">0</div>
+        <div class="stat-label">変更なし行</div>
+      </div>
+    </div>
+    <div class="result-header">
+      <div class="legends">
+        <div class="legend"><div class="dot dot-add"></div>追加された行</div>
+        <div class="legend"><div class="dot dot-del"></div>削除された行</div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnUnified" onclick="setView('unified')">統合表示</button>
+        <button class="view-btn" id="btnSplit" onclick="setView('split')">分割表示</button>
+      </div>
+    </div>
+    <div class="diff-wrap" id="diffWrap"></div>
+  </div>
+</div>
+
+<script>
+let currentDiff = [];
+let currentView = 'unified';
+
+function computeLCS(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m + 1}, () => new Int32Array(n + 1));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  const seq = [];
+  let i = m, j = n;
+  while (i > 0 && j > 0) {
+    if (a[i-1] === b[j-1]) { seq.push([i-1, j-1]); i--; j--; }
+    else if (dp[i-1][j] > dp[i][j-1]) i--;
+    else j--;
+  }
+  return seq.reverse();
+}
+
+function diffLines(before, after) {
+  const a = before === '' ? [] : before.split('\n');
+  const b = after  === '' ? [] : after.split('\n');
+  const lcs = computeLCS(a, b);
+  const result = [];
+  let ai = 0, bi = 0, li = 0;
+  while (li < lcs.length) {
+    const [la, lb] = lcs[li];
+    while (ai < la) result.push({type: 'del', text: a[ai++]});
+    while (bi < lb) result.push({type: 'add', text: b[bi++]});
+    result.push({type: 'unch', text: a[ai], lineA: ai, lineB: bi}); ai++; bi++; li++;
+  }
+  while (ai < a.length) result.push({type: 'del', text: a[ai++]});
+  while (bi < b.length) result.push({type: 'add', text: b[bi++]});
+  return result;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function runDiff() {
+  const before = document.getElementById('textBefore').value;
+  const after  = document.getElementById('textAfter').value;
+  currentDiff = diffLines(before, after);
+
+  let adds = 0, dels = 0, unchs = 0;
+  currentDiff.forEach(l => { if (l.type==='add') adds++; else if (l.type==='del') dels++; else unchs++; });
+  document.getElementById('statAdd').textContent  = adds;
+  document.getElementById('statDel').textContent  = dels;
+  document.getElementById('statUnch').textContent = unchs;
+
+  renderView();
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnUnified').classList.toggle('active', v === 'unified');
+  document.getElementById('btnSplit').classList.toggle('active', v === 'split');
+  renderView();
+}
+
+function renderView() {
+  const wrap = document.getElementById('diffWrap');
+  if (currentDiff.length === 0) {
+    wrap.innerHTML = '<div class="empty-diff">差分はありません</div>';
+    return;
+  }
+  wrap.innerHTML = currentView === 'unified' ? renderUnified() : renderSplit();
+}
+
+function renderUnified() {
+  const CONTEXT = 3;
+  const diff = currentDiff;
+  let lineA = 1, lineB = 1;
+  // assign line numbers
+  const numbered = diff.map(l => {
+    const row = {...l};
+    if (l.type === 'del' || l.type === 'unch') { row.numA = lineA++; } else { row.numA = null; }
+    if (l.type === 'add' || l.type === 'unch') { row.numB = lineB++; } else { row.numB = null; }
+    return row;
+  });
+
+  // determine visible lines (show context around changes)
+  const changed = new Set(numbered.map((l,i) => l.type !== 'unch' ? i : null).filter(x=>x!==null));
+  const visible = new Set();
+  changed.forEach(i => {
+    for (let d = -CONTEXT; d <= CONTEXT; d++) {
+      const idx = i + d;
+      if (idx >= 0 && idx < numbered.length) visible.add(idx);
+    }
+  });
+
+  if (visible.size === 0) {
+    return '<div class="empty-diff">差分はありません — 2つのテキストは完全に一致しています</div>';
+  }
+
+  let html = '<table class="diff-table"><tbody>';
+  let prevVisible = true;
+  const sorted = [...visible].sort((a,b)=>a-b);
+  sorted.forEach((i, idx) => {
+    if (idx > 0 && i > sorted[idx-1] + 1) {
+      html += `<tr class="hunk-sep"><td colspan="2">… ${i - sorted[idx-1] - 1} 行省略 …</td></tr>`;
+    }
+    const l = numbered[i];
+    const cls = l.type === 'add' ? 'line-add' : l.type === 'del' ? 'line-del' : 'line-unch';
+    const num = l.numA != null ? l.numA : (l.numB != null ? l.numB : '');
+    html += `<tr class="${cls}"><td class="line-num">${num}</td><td class="line-content">${esc(l.text)}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function renderSplit() {
+  // Pair up deletions/additions
+  const pairs = [];
+  const diff = currentDiff;
+  let i = 0;
+  let lineA = 1, lineB = 1;
+  while (i < diff.length) {
+    if (diff[i].type === 'unch') {
+      pairs.push({left: {...diff[i], num: lineA++}, right: {...diff[i], num: lineB++}, type: 'unch'});
+      i++;
+    } else {
+      // collect consecutive dels then adds
+      const dels = [], adds = [];
+      while (i < diff.length && diff[i].type === 'del') dels.push({...diff[i++], num: lineA++});
+      while (i < diff.length && diff[i].type === 'add') adds.push({...diff[i++], num: lineB++});
+      const len = Math.max(dels.length, adds.length);
+      for (let k = 0; k < len; k++) {
+        pairs.push({left: dels[k] || null, right: adds[k] || null, type: 'change'});
+      }
+    }
+  }
+
+  const CONTEXT = 3;
+  const changed = new Set(pairs.map((p,i) => p.type !== 'unch' ? i : null).filter(x=>x!==null));
+  const visible = new Set();
+  changed.forEach(i => {
+    for (let d = -CONTEXT; d <= CONTEXT; d++) {
+      const idx = i + d;
+      if (idx >= 0 && idx < pairs.length) visible.add(idx);
+    }
+  });
+
+  if (visible.size === 0) {
+    return '<div class="empty-diff">差分はありません — 2つのテキストは完全に一致しています</div>';
+  }
+
+  let html = '<table class="split-table"><tbody>';
+  const sorted = [...visible].sort((a,b)=>a-b);
+  sorted.forEach((i, idx) => {
+    if (idx > 0 && i > sorted[idx-1] + 1) {
+      html += `<tr class="hunk-sep"><td colspan="4">… ${i - sorted[idx-1] - 1} 行省略 …</td></tr>`;
+    }
+    const p = pairs[i];
+    const L = p.left, R = p.right;
+    const lNumCls  = L ? (L.type==='del' ? 'split-del-num'  : 'split-unch-num') : '';
+    const lCellCls = L ? (L.type==='del' ? 'split-del-cell' : 'split-unch-cell') : 'split-empty';
+    const rNumCls  = R ? (R.type==='add' ? 'split-add-num'  : 'split-unch-num') : '';
+    const rCellCls = R ? (R.type==='add' ? 'split-add-cell' : 'split-unch-cell') : 'split-empty';
+    html += `<tr>` +
+      `<td class="line-num split-left ${lNumCls}">${L ? L.num : ''}</td>` +
+      `<td class="split-left ${lCellCls}">${L ? esc(L.text) : ''}</td>` +
+      `<td class="line-num ${rNumCls}">${R ? R.num : ''}</td>` +
+      `<td class="${rCellCls}">${R ? esc(R.text) : ''}</td>` +
+      `</tr>`;
+  });
+  html += '</tbody></table>';
+  return html;
+}
+</script>
+</body>
+</html>
